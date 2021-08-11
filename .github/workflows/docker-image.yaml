@@ -28,29 +28,43 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
       
-    - name: Build
+    - name: Build :privileged image
       uses: docker/build-push-action@v2
       with:
         context: .
-        push: false
+        push: true
         target: privileged
         tags: ghcr.io/smartsquaregmbh/swiss-army-knife:privileged,ghcr.io/smartsquaregmbh/swiss-army-knife:latest
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
     
-    - name: Build
+    # This ugly bit is necessary if you don't want your cache to grow forever
+    # till it hits GitHub's limit of 5GB.
+    # Temp fix
+    # https://github.com/docker/build-push-action/issues/252
+    # https://github.com/moby/buildkit/issues/1896
+    - name: Move cache
+      run: |
+        rm -rf /tmp/.buildx-cache
+        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+    - name: Build :unprivileged image
       uses: docker/build-push-action@v2
       with:
         context: .
-        push: false
+        push: true
         target: unprivileged
         tags: ghcr.io/smartsquaregmbh/swiss-army-knife:unprivileged
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
 
-    - name: Push images
+    # This ugly bit is necessary if you don't want your cache to grow forever
+    # till it hits GitHub's limit of 5GB.
+    # Temp fix
+    # https://github.com/docker/build-push-action/issues/252
+    # https://github.com/moby/buildkit/issues/1896
+    - name: Move cache
       run: |
-        docker push ghcr.io/smartsquaregmbh/swiss-army-knife:privileged
-        docker push ghcr.io/smartsquaregmbh/swiss-army-knife:latest
-        docker push ghcr.io/smartsquaregmbh/swiss-army-knife:unprivileged
+        rm -rf /tmp/.buildx-cache
+        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
         
