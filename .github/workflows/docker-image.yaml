@@ -12,11 +12,44 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build images
-      run: ./build.sh
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Cache Docker layers
+      uses: actions/cache@v2
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-  
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+      
+    - name: Build
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: false
+        target: privileged
+        tags: ghcr.io/smartsquaregmbh/swiss-army-knife:privileged,ghcr.io/smartsquaregmbh/swiss-army-knife:latest
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache-new
+    
+    - name: Build
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: false
+        target: unprivileged
+        tags: ghcr.io/smartsquaregmbh/swiss-army-knife:unprivileged
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache-new
+
     - name: Push images
       run: |
-        docker tag ghcr.io/smartsquaregmbh/swiss-army-knife:privileged ghcr.io/smartsquaregmbh/swiss-army-knife:latest
         docker push ghcr.io/smartsquaregmbh/swiss-army-knife:privileged
         docker push ghcr.io/smartsquaregmbh/swiss-army-knife:latest
         docker push ghcr.io/smartsquaregmbh/swiss-army-knife:unprivileged
