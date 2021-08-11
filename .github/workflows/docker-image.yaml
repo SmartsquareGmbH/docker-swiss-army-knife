@@ -1,0 +1,23 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ ci ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build images
+      run: ./build.sh
+    - name: Push images
+      run: |
+        docker tag ghcr.io/smartsquaregmbh/swiss-army-knife:privileged ghcr.io/smartsquaregmbh/swiss-army-knife:latest
+        docker push ghcr.io/smartsquaregmbh/swiss-army-knife:privileged
+        docker push ghcr.io/smartsquaregmbh/swiss-army-knife:latest
+        docker push ghcr.io/smartsquaregmbh/swiss-army-knife:unprivileged
+        

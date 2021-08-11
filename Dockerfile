@@ -10,6 +10,7 @@ RUN cargo build --release
 
 
 FROM alpine:3.14 as privileged
+LABEL org.opencontainers.image.source https://github.com/SmartsquareGmbH/docker-swiss-army-knife/
 
 RUN apk add --no-cache \
     bash \
