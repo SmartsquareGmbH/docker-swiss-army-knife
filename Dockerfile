@@ -25,7 +25,8 @@ RUN apk add --no-cache \
     socat \
     netcat-openbsd \
     openssl \
-    libgcc
+    libgcc \
+    libcap
 
 COPY --from=builder /opt/dog/target/release/dog /usr/bin/dog
 
@@ -38,5 +39,10 @@ ENTRYPOINT [ "/bin/bash" ]
 
 
 FROM privileged AS unprivileged
+
+RUN for bin in ping traceroute traceroute6 tcpdump paris-traceroute; do \
+    setcap cap_net_raw=eip $(readlink -f $(which $bin)); \
+    done
+
 RUN adduser -D user
 USER user
