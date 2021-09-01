@@ -26,13 +26,17 @@ RUN apk add --no-cache \
     netcat-openbsd \
     openssl \
     libgcc \
-    libcap
+    libcap \
+    python3
 
 COPY --from=builder /opt/dog/target/release/dog /usr/bin/dog
 
 RUN cd /usr/bin \
     && curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.22.0/bin/linux/amd64/kubectl \
     && chmod +x kubectl
+
+RUN mkdir -p /opt/jc && python3 -m venv /opt/jc && /opt/jc/bin/python3 -m ensurepip --upgrade
+RUN /opt/jc/bin/pip3 install jc && ln -s /opt/jc/bin/jc /usr/bin/jc
 
 ENTRYPOINT [ "/bin/bash" ]
 

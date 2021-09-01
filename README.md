@@ -14,3 +14,5 @@ Contains the following useful tools, in no particular order:
 * `jq`
 * `kubectl`
 * `nc` and `socat`
+* `python3`
+* `jc`
