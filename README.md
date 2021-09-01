@@ -16,3 +16,5 @@ Contains the following useful tools, in no particular order:
 * `nc` and `socat`
 * `python3`
 * `jc`
+* `rg`
+* `fd`

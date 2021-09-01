@@ -27,7 +27,9 @@ RUN apk add --no-cache \
     openssl \
     libgcc \
     libcap \
-    python3
+    python3 \
+    ripgrep \
+    fd
 
 COPY --from=builder /opt/dog/target/release/dog /usr/bin/dog
 
