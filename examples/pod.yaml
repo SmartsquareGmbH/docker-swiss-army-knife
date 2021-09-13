@@ -1,0 +1,28 @@
+# Example for a pod that uses as few privileges as possible.
+# As a consequence, some functionality will not work:
+#  * using kubectl, unless the namespaces default serviceaccount has the required permissions
+#  * using tcpdump, tracert, or ping
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: swiss-army-knife
+spec:
+  containers:
+    - name: swiss-army-knife
+      image: ghcr.io/smartsquaregmbh/swiss-army-knife:unprivileged
+      command:
+        - bash
+        - -c 
+        - "while true; do sleep 10; done"
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities: 
+          drop:
+            - all
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  restartPolicy: Always

@@ -1,0 +1,30 @@
+# Example of a highly-privileged pod capable of some 
+# low-level network usage like ICMP (-> ping), and suitable as an entrypoint
+# into the host operating system. 
+# Do not use this unless you're absolutely certain that you have to. 
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: swiss-army-knife-privileged
+spec:
+  containers:
+    - name: swiss-army-knife
+      image: ghcr.io/smartsquaregmbh/swiss-army-knife:privileged
+      command:
+        - bash
+        - -c 
+        - "while true; do sleep 10; done"
+      securityContext:
+        privileged: true
+        runAsNonRoot: false
+        procMount: Unmasked
+      volumeMounts:
+        - mountPath: /node-root
+          name: node-root
+  restartPolicy: Always
+  volumes:
+    - name: node-root
+      hostPath:
+        path: /
+  
